@@ -1,0 +1,49 @@
+# --- Secrets / local env ---
+.env
+.env.*
+!.env.example
+*.local
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Editors / IDEs ---
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*.sw?
+*.suo
+*.sln
+.project
+.classpath
+.settings/
+.factorypath
+.apt_generated
+.springBeans
+.sts4-cache
+
+# --- Logs ---
+logs/
+*.log
+npm-debug.log*
+
+# --- Backend (Maven / Java) ---
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/HELP.md
+*.class
+hs_err_pid*
+
+# --- Frontend (Node / Vite) ---
+node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/coverage/
+.vite/
+*.tsbuildinfo

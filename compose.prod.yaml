@@ -1,0 +1,17 @@
+# Production: storage is Cloudflare R2 (set S3_* in .env), only nginx is exposed.
+#   docker compose -f compose.yaml -f compose.prod.yaml up -d --build
+services:
+  mysql:
+    restart: unless-stopped
+
+  backend:
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      # Session cookie is Secure-only: serve the site over HTTPS (TLS in front of nginx).
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-true}
+
+  frontend:
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"

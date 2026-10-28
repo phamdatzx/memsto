@@ -1,0 +1,41 @@
+# Local: adds an S3-compatible store (SeaweedFS) and exposes ports.
+#   docker compose -f compose.yaml -f compose.dev.yaml up --build
+# Or run only infra and start backend/frontend on the host for hot reload:
+#   docker compose -f compose.yaml -f compose.dev.yaml up mysql s3
+services:
+  mysql:
+    ports:
+      - "3306:3306"
+
+  s3:
+    # S3-compatible stand-in for Cloudflare R2 (SeaweedFS; MinIO/LocalStack images are no longer freely pullable).
+    # Credentials live in infra/seaweedfs/s3.json and must match S3_ACCESS_KEY / S3_SECRET_KEY.
+    image: chrislusf/seaweedfs:4.51
+    command: server -ip.bind=0.0.0.0 -dir=/data -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json
+    ports:
+      - "8333:8333"
+    volumes:
+      - s3-data:/data
+      - ./infra/seaweedfs/s3.json:/etc/seaweedfs/s3.json:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8333/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  backend:
+    environment:
+      S3_ENDPOINT: http://s3:8333
+      STORAGE_CREATE_BUCKET: "true"
+    ports:
+      - "8080:8080"
+    depends_on:
+      s3:
+        condition: service_healthy
+
+  frontend:
+    ports:
+      - "5173:80"
+
+volumes:
+  s3-data:
